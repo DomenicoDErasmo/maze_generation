@@ -1,6 +1,6 @@
 //! Functionality pertaining to a cell in the maze.
 
-use core::fmt::{Debug, Formatter, Result};
+use core::fmt::{Debug, Display, Formatter, Result};
 
 pub enum Cell {
     /// Traversable terrain
@@ -9,7 +9,7 @@ pub enum Cell {
     WALL,
 }
 
-impl Debug for Cell {
+impl Display for Cell {
     #[inline]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match *self {
@@ -28,5 +28,12 @@ impl Debug for Cell {
                 )
             }
         }
+    }
+}
+
+impl Debug for Cell {
+    #[inline]
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        write!(formatter, "{self}")
     }
 }
