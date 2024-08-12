@@ -3,10 +3,10 @@
 use core::fmt::{Debug, Display, Formatter, Result};
 
 pub enum Cell {
-    /// Traversable terrain
-    PATH,
     /// Impassable terrain
     WALL,
+    /// Traversable terrain
+    PATH,
 }
 
 impl Display for Cell {
