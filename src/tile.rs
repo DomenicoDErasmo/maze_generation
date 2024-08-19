@@ -1,16 +1,16 @@
-//! Functionality pertaining to a cell in the maze.
+//! Functionality pertaining to a tile in the maze.
 
 use core::fmt::{Debug, Display, Formatter, Result};
 
 #[derive(Clone)]
-pub enum Cell {
+pub enum Tile {
     /// Impassable terrain
     WALL,
     /// Traversable terrain
     PATH,
 }
 
-impl Display for Cell {
+impl Display for Tile {
     #[inline]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match *self {
@@ -32,7 +32,7 @@ impl Display for Cell {
     }
 }
 
-impl Debug for Cell {
+impl Debug for Tile {
     #[inline]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         write!(formatter, "{self}")
