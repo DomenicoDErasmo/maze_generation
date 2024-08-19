@@ -1,0 +1,4 @@
+- [ ] Maze struct in charge of
+    - [ ] Generating full length/width from num rows/cols
+    - [ ] How to choose the next cell
+    - [ ] How to get a perimeter value
