@@ -2,6 +2,7 @@
 
 use core::fmt::{Debug, Display, Formatter, Result};
 
+#[derive(Clone)]
 pub enum Cell {
     /// Impassable terrain
     WALL,
