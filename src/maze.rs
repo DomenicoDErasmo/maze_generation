@@ -1,6 +1,7 @@
 //! The maze and its generation algorithms
 
 use core::fmt::{Debug, Display, Formatter, Result};
+use std::collections::HashSet;
 
 use rand::{seq::SliceRandom, thread_rng, Rng};
 use strum::IntoEnumIterator;
@@ -99,11 +100,27 @@ impl Maze {
 }
 
 /// Choosese a random unvisited direction.
-fn choose_random_unvisited_direction(
+#[inline]
+#[must_use]
+pub fn choose_random_unvisited_direction(
     pair: Pair,
     visited: &Board<VisitStatus>,
 ) -> Option<Direction> {
-    let direction_choices = Direction::iter()
+    let direction_choices = get_unvisited_directions(pair, visited);
+    direction_choices
+        .into_iter()
+        .collect::<Vec<Direction>>()
+        .choose(&mut thread_rng())
+        .copied()
+}
+
+#[inline]
+#[must_use]
+pub fn get_unvisited_directions(
+    pair: Pair,
+    visited: &Board<VisitStatus>,
+) -> HashSet<Direction> {
+    Direction::iter()
         .filter(|direction| {
             let Some(visit_status_of_new_pair) =
                 visited.get_from_pair(pair.add(Pair::from(*direction)))
@@ -112,7 +129,20 @@ fn choose_random_unvisited_direction(
             };
             *visit_status_of_new_pair == VisitStatus::Unvisited
         })
-        .collect::<Vec<Direction>>();
+        .collect::<HashSet<Direction>>()
+}
 
-    direction_choices.choose(&mut thread_rng()).copied()
+#[cfg(test)]
+mod test_maze {
+    use crate::{board::Board, pair::Pair, visit_status::VisitStatus};
+
+    use super::get_unvisited_directions;
+
+    #[test]
+    fn test_get_univisited_directions() {
+        let pair = Pair::from_row_and_col(3, 3);
+        let board = Board::<VisitStatus>::new(6, 6);
+        
+        // TODO: finish test - create HashSet mark multiple as visited and try again
+    }
 }
