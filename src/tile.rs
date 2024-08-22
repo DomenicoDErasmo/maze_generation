@@ -5,27 +5,27 @@ use core::fmt::{Debug, Display, Formatter, Result};
 #[derive(Clone)]
 pub enum Tile {
     /// Impassable terrain
-    WALL,
+    Wall,
     /// Traversable terrain
-    PATH,
+    Path,
 }
 
 impl Display for Tile {
     #[inline]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match *self {
-            Self::PATH => {
-                write!(
-                    formatter,
-                    "{}",
-                    char::from_u32(0x2B1B).unwrap_or('\u{fffd}')
-                )
-            }
-            Self::WALL => {
+            Self::Path => {
                 write!(
                     formatter,
                     "{}",
                     char::from_u32(0x2B1C).unwrap_or('\u{fffd}')
+                )
+            }
+            Self::Wall => {
+                write!(
+                    formatter,
+                    "{}",
+                    char::from_u32(0x2B1B).unwrap_or('\u{fffd}')
                 )
             }
         }
@@ -36,5 +36,12 @@ impl Debug for Tile {
     #[inline]
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         write!(formatter, "{self}")
+    }
+}
+
+impl Default for Tile {
+    #[inline]
+    fn default() -> Self {
+        Self::Wall
     }
 }

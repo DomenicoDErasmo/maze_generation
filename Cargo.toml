@@ -4,4 +4,6 @@ name    = "maze_generation"
 version = "0.1.0"
 
 [dependencies]
-rand = "0.8.5"
+rand         = "0.8.5"
+strum        = "0.26.3"
+strum_macros = "0.26.4"
