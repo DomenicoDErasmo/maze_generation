@@ -134,15 +134,45 @@ pub fn get_unvisited_directions(
 
 #[cfg(test)]
 mod test_maze {
-    use crate::{board::Board, pair::Pair, visit_status::VisitStatus};
+    use std::collections::HashSet;
+
+    use strum::IntoEnumIterator;
+
+    use crate::{
+        board::Board, direction::Direction, pair::Pair,
+        visit_status::VisitStatus,
+    };
 
     use super::get_unvisited_directions;
 
     #[test]
     fn test_get_univisited_directions() {
         let pair = Pair::from_row_and_col(3, 3);
-        let board = Board::<VisitStatus>::new(6, 6);
-        
+        let mut board = Board::<VisitStatus>::new(6, 6);
+        let none_visited = Direction::iter().collect::<HashSet<Direction>>();
+        assert_eq!(get_unvisited_directions(pair, &board), none_visited);
+
+        if let Some(cell) =
+            board.get_mut_from_pair(pair + Pair::from(Direction::Left))
+        {
+            *cell = VisitStatus::Visited;
+        }
+        let mut left_visited = none_visited;
+        let _: bool = left_visited.remove(&Direction::Left);
+        assert_eq!(get_unvisited_directions(pair, &board), left_visited);
+
+        if let Some(cell) =
+            board.get_mut_from_pair(pair + Pair::from(Direction::Right))
+        {
+            *cell = VisitStatus::Visited;
+        }
+        let mut left_and_right_visited = left_visited;
+        let _: bool = left_and_right_visited.remove(&Direction::Right);
+        assert_eq!(
+            get_unvisited_directions(pair, &board),
+            left_and_right_visited
+        );
+
         // TODO: finish test - create HashSet mark multiple as visited and try again
     }
 }
