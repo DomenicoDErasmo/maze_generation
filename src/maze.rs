@@ -13,7 +13,7 @@ use crate::stack::Stack;
 use crate::tile::Tile;
 use crate::visit_status::VisitStatus;
 use core::convert::From;
-use core::ops::Add;
+use core::ops::{Add, Div, Mul, Sub};
 
 pub struct Maze {
     /// The grid of cells
@@ -54,7 +54,7 @@ impl Maze {
     /// * The fully generated maze.
     #[inline]
     #[must_use]
-    pub fn from_backtracking(height: usize, width: usize) -> Self {
+    pub fn from_backtracking(height: usize, width: usize) -> Option<Self> {
         let mut grid = Board::<Tile>::new(height, width);
 
         for (i, row) in grid.grid.iter_mut().enumerate() {
@@ -65,37 +65,113 @@ impl Maze {
             }
         }
 
-        let visited = Board::<VisitStatus>::new(height, width);
+        let mut visited = Board::<VisitStatus>::new(height, width);
 
-        let first_cell_visited = Pair::from_row_and_col(
-            thread_rng()
-                .gen_range(0..height)
-                .try_into()
-                .unwrap_or_default(),
-            thread_rng()
-                .gen_range(0..width)
-                .try_into()
-                .unwrap_or_default(),
-        );
+        let first_cell_visited = choose_perimeter_pair(&grid)?;
+        println!("{first_cell_visited:#?}");
 
         let mut visited_stack: Stack<Pair> = Stack::from(first_cell_visited);
+        *visited.get_mut_from_pair(first_cell_visited)? = VisitStatus::Visited;
 
         while !visited_stack.empty() {
-            let Some(popped_pair) = visited_stack.pop() else {
+            let Some(popped_pair) = visited_stack.top() else {
                 break;
             };
 
-            let Some(_direction) =
+            let Some(direction) =
                 choose_random_unvisited_direction(popped_pair, &visited)
             else {
-                break;
+                visited_stack.pop();
+                continue;
             };
 
-            // TODO: push new pair to stack and eliminate any walls between the new pair and the current pair
-            // TODO: should I not pop from the stack until all adjacent cells are gone?
+            let new_pair = popped_pair.add(2_i32.mul(Pair::from(direction)));
+            visited_stack.push(new_pair);
+
+            if let Some(cell) = visited.get_mut_from_pair(new_pair) {
+                *cell = VisitStatus::Visited;
+            }
+
+            // the in-between cell should be a wall, which we can remove
+            let in_between_pair = popped_pair.add(Pair::from(direction));
+            if let Some(cell) = grid.get_mut_from_pair(in_between_pair) {
+                *cell = Tile::Path;
+            }
+            if let Some(cell) = visited.get_mut_from_pair(in_between_pair) {
+                *cell = VisitStatus::Visited;
+            }
         }
 
-        Self { board: grid }
+        Some(Self { board: grid })
+    }
+}
+
+/// Chooses a `Pair` from the perimeter of the maze.
+fn choose_perimeter_pair(board: &Board<Tile>) -> Option<Pair> {
+    let side = Direction::iter()
+        .collect::<Vec<Direction>>()
+        .choose(&mut thread_rng())
+        .copied()
+        .unwrap_or_default();
+
+    match side {
+        Direction::Down => {
+            let last_row = board.grid.last()?;
+            let Ok(row) = i32::try_from(board.grid.len().sub(2)) else {
+                return None;
+            };
+            // row of length 0 to 41 should use cells 1-39
+            // we want odds, so we generate with thread_rng().gen_range(0..19) * 2 + 1
+            let Ok(col) = i32::try_from(
+                thread_rng()
+                    .gen_range(0..last_row.len().sub(2).div(2))
+                    .mul(2)
+                    .add(1),
+            ) else {
+                return None;
+            };
+            Some(Pair { row, col })
+        }
+        Direction::Left => {
+            let first_col = board.grid.first()?;
+            let Ok(row) = i32::try_from(
+                thread_rng()
+                    .gen_range(0..first_col.len().sub(2).div(2))
+                    .mul(2)
+                    .add(1),
+            ) else {
+                return None;
+            };
+            let col = 1;
+            Some(Pair { row, col })
+        }
+        Direction::Up => {
+            let first_row = board.grid.first()?;
+            let row = 1;
+            let Ok(col) = i32::try_from(
+                thread_rng()
+                    .gen_range(0..first_row.len().sub(2).div(2))
+                    .mul(2)
+                    .add(1),
+            ) else {
+                return None;
+            };
+            Some(Pair { row, col })
+        }
+        Direction::Right => {
+            let Ok(row) = i32::try_from(
+                thread_rng()
+                    .gen_range(0..board.grid.len().sub(2).div(2))
+                    .mul(2)
+                    .add(1),
+            ) else {
+                return None;
+            };
+            let Ok(col) = i32::try_from(board.grid.len().sub(2)) else {
+                return None;
+            };
+            Some(Pair { row, col })
+        }
     }
 }
 
@@ -122,8 +198,8 @@ pub fn get_unvisited_directions(
 ) -> HashSet<Direction> {
     Direction::iter()
         .filter(|direction| {
-            let Some(visit_status_of_new_pair) =
-                visited.get_from_pair(pair.add(Pair::from(*direction)))
+            let Some(visit_status_of_new_pair) = visited
+                .get_from_pair(pair.add(2_i32.mul(Pair::from(*direction))))
             else {
                 return false;
             };
@@ -136,6 +212,7 @@ pub fn get_unvisited_directions(
 mod test_maze {
     use std::collections::HashSet;
 
+    use core::ops::Mul;
     use strum::IntoEnumIterator;
 
     use crate::{
@@ -152,8 +229,9 @@ mod test_maze {
         let none_visited = Direction::iter().collect::<HashSet<Direction>>();
         assert_eq!(get_unvisited_directions(pair, &board), none_visited);
 
-        if let Some(cell) =
-            board.get_mut_from_pair(pair + Pair::from(Direction::Left))
+        println!("{:#?}", pair + 2_i32.mul(Pair::from(Direction::Left)));
+        if let Some(cell) = board
+            .get_mut_from_pair(pair + 2_i32.mul(Pair::from(Direction::Left)))
         {
             *cell = VisitStatus::Visited;
         }
@@ -161,8 +239,8 @@ mod test_maze {
         let _: bool = left_visited.remove(&Direction::Left);
         assert_eq!(get_unvisited_directions(pair, &board), left_visited);
 
-        if let Some(cell) =
-            board.get_mut_from_pair(pair + Pair::from(Direction::Right))
+        if let Some(cell) = board
+            .get_mut_from_pair(pair + 2_i32.mul(Pair::from(Direction::Right)))
         {
             *cell = VisitStatus::Visited;
         }

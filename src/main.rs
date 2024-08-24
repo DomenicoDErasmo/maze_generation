@@ -3,6 +3,9 @@
 use maze_generation::maze::Maze;
 
 fn main() {
-    let maze = Maze::from_backtracking(20, 20);
+    let Some(maze) = Maze::from_backtracking(20, 20) else {
+        eprintln!("Failed to generate maze.");
+        return;
+    };
     println!("{maze:#?}");
 }

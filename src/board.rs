@@ -1,5 +1,6 @@
 //! A 2D vector meant to interface cleanly with pair access.
 
+use core::fmt::{Debug, Display, Formatter, Result};
 use core::ops::{Add, Mul};
 
 use crate::pair::Pair;
@@ -25,6 +26,35 @@ where
                 walkable_and_walls(height)
             ],
         }
+    }
+}
+
+impl<T> Display for Board<T>
+where
+    T: Display,
+{
+    #[inline]
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        let mut result = String::new();
+
+        for row in &self.grid {
+            for cell in row {
+                result.push_str(cell.to_string().as_str());
+            }
+            result.push('\n');
+        }
+
+        write!(formatter, "{result}")
+    }
+}
+
+impl<T> Debug for Board<T>
+where
+    T: Display,
+{
+    #[inline]
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        write!(formatter, "{self}")
     }
 }
 

@@ -3,7 +3,7 @@
 /// A basic stack container.
 pub struct Stack<T>
 where
-    T: Default + Sized,
+    T: Copy + Default + Sized,
 {
     /// The values in the stack.
     values: Vec<T>,
@@ -11,7 +11,7 @@ where
 
 impl<T> Stack<T>
 where
-    T: Default + Sized,
+    T: Copy + Default + Sized,
 {
     /// Initializes an empty stack.
     #[inline]
@@ -34,6 +34,12 @@ where
         self.values.push(value);
     }
 
+    /// Gets the top value from the stack.
+    #[inline]
+    pub fn top(&mut self) -> Option<T> {
+        self.values.last().copied()
+    }
+
     /// Pops a value from the stack.
     #[inline]
     pub fn pop(&mut self) -> Option<T> {
@@ -50,7 +56,7 @@ where
 
 impl<T> Default for Stack<T>
 where
-    T: Default + Sized,
+    T: Copy + Default + Sized,
 {
     #[inline]
     fn default() -> Self {

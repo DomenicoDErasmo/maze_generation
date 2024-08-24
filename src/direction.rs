@@ -1,9 +1,12 @@
 //! A module detailing directions.
 
-#[derive(strum_macros::EnumIter, Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(
+    strum_macros::EnumIter, Clone, Copy, PartialEq, Eq, Hash, Debug, Default,
+)]
 pub enum Direction {
-    Left,
+    #[default]
     Up,
     Right,
     Down,
+    Left,
 }
