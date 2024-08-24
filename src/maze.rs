@@ -172,7 +172,5 @@ mod test_maze {
             get_unvisited_directions(pair, &board),
             left_and_right_visited
         );
-
-        // TODO: finish test - create HashSet mark multiple as visited and try again
     }
 }
