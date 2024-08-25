@@ -90,6 +90,8 @@ impl Maze {
         let end = Self::choose_perimeter_pair(&board)?;
         Self::add_maze_entry(end, &mut board);
 
+        println!("{:#?}, {:#?}", start.pair, end.pair);
+
         Some(Self { board })
     }
 
@@ -192,11 +194,12 @@ impl Maze {
                 })
             }
             Direction::Right => {
-                let row = i32::try_from(board.grid.len().sub(2)).ok()?;
-                let col = i32::try_from(Board::<Tile>::cell_position_to_index(
+                let row = i32::try_from(Board::<Tile>::cell_position_to_index(
                     thread_rng().gen_range(0..board.cell_width),
                 ))
                 .ok()?;
+                let col =
+                    i32::try_from(board.grid.first()?.len().sub(2)).ok()?;
                 Some(Perimeter {
                     pair: Pair { row, col },
                 })
