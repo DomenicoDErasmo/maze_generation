@@ -56,15 +56,16 @@ impl Maze {
     #[inline]
     #[must_use]
     pub fn from_backtracking(height: usize, width: usize) -> Option<Self> {
-        let mut grid = Self::blank_board(height, width);
+        let mut board = Self::blank_board(height, width);
 
         let mut visited = Board::<VisitStatus>::new(height, width);
-        let first_cell_visited = choose_perimeter_pair(&grid)?;
+        let start = choose_perimeter_pair(&board)?;
+        add_maze_entry(start, &mut board);
 
         let mut visited_stack: Stack<Pair> = Stack::new();
 
-        visited_stack.push(first_cell_visited);
-        *visited.get_mut_from_pair(first_cell_visited)? = VisitStatus::Visited;
+        visited_stack.push(start);
+        *visited.get_mut_from_pair(start)? = VisitStatus::Visited;
 
         while !visited_stack.empty() {
             let Some(popped_pair) = visited_stack.top() else {
@@ -87,7 +88,7 @@ impl Maze {
 
             // the in-between cell should be a wall, which we can remove
             let in_between_pair = popped_pair.add(Pair::from(direction));
-            if let Some(cell) = grid.get_mut_from_pair(in_between_pair) {
+            if let Some(cell) = board.get_mut_from_pair(in_between_pair) {
                 *cell = Tile::Path;
             }
             if let Some(cell) = visited.get_mut_from_pair(in_between_pair) {
@@ -95,7 +96,10 @@ impl Maze {
             }
         }
 
-        Some(Self { board: grid })
+        let end = choose_perimeter_pair(&board)?;
+        add_maze_entry(end, &mut board);
+
+        Some(Self { board })
     }
 
     /// Generates a blank board.
@@ -123,11 +127,33 @@ impl Maze {
     }
 }
 
+/// Adds an entry point to the maze.
+///
+/// ### Parameters
+/// * `pair`: The `Pair` adjacent to the perimeter of the board.
+/// * `board`: The board of `Tiles` to update.
+fn add_maze_entry(pair: Pair, board: &mut Board<Tile>) {
+    for direction in Direction::iter() {
+        let Some(_) =
+            board.get_from_pair(pair.add(2_i32.mul(Pair::from(direction))))
+        else {
+            let Some(cell) =
+                board.get_mut_from_pair(pair.add(Pair::from(direction)))
+            else {
+                return;
+            };
+
+            *cell = Tile::Entry;
+            return;
+        };
+    }
+}
+
 /// Chooses a `Pair` from the perimeter of the maze.
-/// 
+///
 /// ### Parameters
 /// * `board`: A reference to the board to get a perimeter cell from.
-/// 
+///
 /// ### Returns
 /// * An optional pair.
 fn choose_perimeter_pair(board: &Board<Tile>) -> Option<Pair> {
@@ -199,11 +225,11 @@ fn choose_perimeter_pair(board: &Board<Tile>) -> Option<Pair> {
 }
 
 /// Choosese a random unvisited direction.
-/// 
+///
 /// ### Parameters
 /// * `pair`: A `Pair` to access a `Board` with.
 /// * `visited`: The `Board` of visitation status.
-/// 
+///
 /// ### Returns
 /// * An optional direction.
 #[inline]
@@ -220,13 +246,12 @@ pub fn choose_random_unvisited_direction(
         .copied()
 }
 
-
 /// Gets unvisited directions.
-/// 
+///
 /// ### Parameters
 /// * `pair`: A `Pair` to access a `Board` with.
 /// * `visited`: The `Board` of visitation status.
-/// 
+///
 /// ### Returns
 /// * A set of `Direction` enums.
 #[inline]

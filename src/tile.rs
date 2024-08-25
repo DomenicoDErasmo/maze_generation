@@ -4,10 +4,12 @@ use core::fmt::{Debug, Display, Formatter, Result};
 
 #[derive(Clone)]
 pub enum Tile {
-    /// Impassable terrain
+    /// Impassable terrain.
     Wall,
-    /// Traversable terrain
+    /// Traversable terrain.
     Path,
+    /// A maze entrance.
+    Entry,
 }
 
 impl Display for Tile {
@@ -26,6 +28,13 @@ impl Display for Tile {
                     formatter,
                     "{}",
                     char::from_u32(0x2B1B).unwrap_or('\u{fffd}')
+                )
+            }
+            Self::Entry => {
+                write!(
+                    formatter,
+                    "{}",
+                    char::from_u32(0x1F7E9).unwrap_or('\u{fffd}')
                 )
             }
         }
