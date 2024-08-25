@@ -62,7 +62,6 @@ impl Maze {
         let start = Self::choose_perimeter_pair(&board)?;
         Self::add_maze_entry(start, &mut board);
 
-        println!("{:#?}", start.pair);
         let mut visited_stack: Stack<Pair> = Stack::new();
 
         visited_stack.push(start.pair);
@@ -106,8 +105,6 @@ impl Maze {
         let _: bool =
             Self::visit_and_mark_as_path(&mut board, &mut visited, end.pair)?;
         Self::add_maze_entry(end, &mut board);
-
-        println!("{:#?}", end.pair);
 
         Some(Self { board })
     }
@@ -169,59 +166,39 @@ impl Maze {
             .copied()
             .unwrap_or_default();
 
-        println!("{side:#?}");
-        println!(
-            "height: {:#?}, width: {:#?}",
-            board.cell_height, board.cell_width
-        );
+        let unsigned_to_signed_cell = |value: usize| {
+            i32::try_from(Board::<Tile>::cell_position_to_index(value)).ok()
+        };
+
+        let pick_random_cell = |max: usize| {
+            unsigned_to_signed_cell(thread_rng().gen_range(0..max))
+        };
 
         match side {
             Direction::Down => {
-                let row = i32::try_from(Board::<Tile>::cell_position_to_index(
-                    board.cell_height.sub(1),
-                ))
-                .ok()?;
-                let col = i32::try_from(Board::<Tile>::cell_position_to_index(
-                    thread_rng().gen_range(0..board.cell_width),
-                ))
-                .ok()?;
+                let row = unsigned_to_signed_cell(board.cell_height.sub(1))?;
+                let col = pick_random_cell(board.cell_width)?;
                 Some(Perimeter {
                     pair: Pair { row, col },
                 })
             }
             Direction::Left => {
-                let row = i32::try_from(Board::<Tile>::cell_position_to_index(
-                    thread_rng().gen_range(0..board.cell_height),
-                ))
-                .ok()?;
-                let col =
-                    i32::try_from(Board::<Tile>::cell_position_to_index(0))
-                        .ok()?;
+                let row = pick_random_cell(board.cell_height)?;
+                let col = unsigned_to_signed_cell(0)?;
                 Some(Perimeter {
                     pair: Pair { row, col },
                 })
             }
             Direction::Up => {
-                let row =
-                    i32::try_from(Board::<Tile>::cell_position_to_index(0))
-                        .ok()?;
-                let col = i32::try_from(Board::<Tile>::cell_position_to_index(
-                    thread_rng().gen_range(0..board.cell_width),
-                ))
-                .ok()?;
+                let row = unsigned_to_signed_cell(0)?;
+                let col = pick_random_cell(board.cell_width)?;
                 Some(Perimeter {
                     pair: Pair { row, col },
                 })
             }
             Direction::Right => {
-                let row = i32::try_from(Board::<Tile>::cell_position_to_index(
-                    thread_rng().gen_range(0..board.cell_height),
-                ))
-                .ok()?;
-                let col = i32::try_from(Board::<Tile>::cell_position_to_index(
-                    board.cell_width.sub(1),
-                ))
-                .ok()?;
+                let row = pick_random_cell(board.cell_height)?;
+                let col = unsigned_to_signed_cell(board.cell_width.sub(1))?;
                 Some(Perimeter {
                     pair: Pair { row, col },
                 })
