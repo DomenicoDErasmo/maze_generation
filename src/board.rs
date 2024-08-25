@@ -106,15 +106,10 @@ where
     #[inline]
     #[must_use]
     pub fn get_from_pair(&self, pair: Pair) -> Option<&T> {
-        let Ok(row_index) = usize::try_from(pair.row) else {
-            return None;
-        };
+        let row_index = usize::try_from(pair.row).ok()?;
         let row = self.grid.get(row_index)?;
 
-        let Ok(col_index) = usize::try_from(pair.col) else {
-            return None;
-        };
-
+        let col_index = usize::try_from(pair.col).ok()?;
         row.get(col_index)
     }
 
@@ -128,15 +123,10 @@ where
     #[inline]
     #[must_use]
     pub fn get_mut_from_pair(&mut self, pair: Pair) -> Option<&mut T> {
-        let Ok(row_index) = usize::try_from(pair.row) else {
-            return None;
-        };
+        let row_index = usize::try_from(pair.row).ok()?;
         let row = self.grid.get_mut(row_index)?;
 
-        let Ok(col_index) = usize::try_from(pair.col) else {
-            return None;
-        };
-
+        let col_index = usize::try_from(pair.col).ok()?;
         row.get_mut(col_index)
     }
 }
