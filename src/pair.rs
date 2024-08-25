@@ -26,7 +26,7 @@ impl Pair {
     /// ### Examples
     /// ```
     /// use maze_generation::pair::Pair;
-    /// 
+    ///
     /// Pair::from_row_and_col(4, 2);
     /// ```
     #[inline]
@@ -137,7 +137,9 @@ impl Mul<i32> for Pair {
     ///
     /// ### Examples
     /// ```
+    /// use std::ops::Mul;
     /// use maze_generation::pair::Pair;
+    ///
     /// let pair_mul_from_rhs = Pair::from_row_and_col(4, -4);
     /// assert_eq!(2_i32.mul(pair_mul_from_rhs), Pair::from_row_and_col(8, -8));
     /// ```
@@ -164,7 +166,9 @@ impl Mul<Pair> for i32 {
     ///
     /// ### Examples
     /// ```
+    /// use std::ops::Mul;
     /// use maze_generation::pair::Pair;
+    ///
     /// let pair_mul_from_lhs = Pair::from_row_and_col(-1, 1);
     /// assert_eq!(pair_mul_from_lhs.mul(3_i32), Pair::from_row_and_col(-3, 3));
     /// ```
