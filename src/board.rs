@@ -24,23 +24,42 @@ where
     /// Creates a `Board` from some numbers of horizontal and vertical "cells".
     ///
     /// ### Parameters
-    /// * `rows`: The number of row "cells" to instantiate board.
-    /// * `cols`: The number of column "cells" to instantiate the board.
+    /// * `height`: The number of row "cells" to instantiate board.
+    /// * `width`: The number of column "cells" to instantiate the board.
     ///
     /// ### Returns
     /// A fully empty `Board`.  
     #[inline]
     #[must_use]
-    pub fn new(rows: usize, cols: usize) -> Self {
-        let walkable_and_walls = |val: usize| val.mul(2).add(1);
+    pub fn new(height: usize, width: usize) -> Self {
         Self {
             grid: vec![
-                vec![T::default(); walkable_and_walls(cols)];
-                walkable_and_walls(rows)
+                vec![T::default(); Self::cell_position_to_index(height)];
+                Self::cell_position_to_index(width)
             ],
-            cell_width: cols,
-            cell_height: rows,
+            cell_width: width,
+            cell_height: height,
         }
+    }
+
+    /// Converts the cell position to an index.
+    ///
+    /// ### Parameters
+    /// * `position`: The value to convert.
+    ///
+    /// ### Returns
+    /// * The index relating to the cell position.
+    ///
+    /// ### Examples
+    /// ```
+    /// use maze_generation::board::Board;
+    ///
+    /// assert_eq!(Board::<i32>::cell_position_to_index(4), 9);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn cell_position_to_index(position: usize) -> usize {
+        position.mul(2).add(1)
     }
 }
 
