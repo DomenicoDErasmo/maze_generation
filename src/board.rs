@@ -9,7 +9,12 @@ pub struct Board<T>
 where
     T: Sized,
 {
+    /// The grid of values on the board.
     pub grid: Vec<Vec<T>>,
+    /// The number of "cells" (odd-indexed values) per row.
+    pub cell_width: usize,
+    /// The number of "cells" (odd-indexed values) per column.
+    pub cell_height: usize,
 }
 
 impl<T> Board<T>
@@ -26,13 +31,15 @@ where
     /// A fully empty `Board`.  
     #[inline]
     #[must_use]
-    pub fn new(rows: usize, width: usize) -> Self {
+    pub fn new(rows: usize, cols: usize) -> Self {
         let walkable_and_walls = |val: usize| val.mul(2).add(1);
         Self {
             grid: vec![
-                vec![T::default(); walkable_and_walls(width)];
+                vec![T::default(); walkable_and_walls(cols)];
                 walkable_and_walls(rows)
             ],
+            cell_width: cols,
+            cell_height: rows,
         }
     }
 }
