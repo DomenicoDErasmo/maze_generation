@@ -5,6 +5,9 @@ use core::ops::{Add, Mul};
 
 use crate::pair::Pair;
 
+/// The number of tiles to jump to get to the next cell.
+pub const CELL_STEP: i32 = 2_i32;
+
 pub struct Board<T>
 where
     T: Sized,

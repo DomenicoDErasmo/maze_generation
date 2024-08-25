@@ -6,7 +6,7 @@ use std::collections::HashSet;
 use rand::{seq::SliceRandom, thread_rng, Rng};
 use strum::IntoEnumIterator;
 
-use crate::board::Board;
+use crate::board::{Board, CELL_STEP};
 use crate::direction::Direction;
 use crate::pair::{Pair, Perimeter};
 use crate::stack::Stack;
@@ -83,7 +83,8 @@ impl Maze {
                 continue;
             };
 
-            let new_pair = popped_pair.add(2_i32.mul(Pair::from(direction)));
+            let new_pair =
+                popped_pair.add(CELL_STEP.mul(Pair::from(direction)));
             visited_stack.push(new_pair);
             let _: bool = Self::visit_and_mark_as_path(
                 &mut board,
@@ -135,7 +136,9 @@ impl Maze {
     fn add_maze_entry(perimeter_tile: Perimeter, board: &mut Board<Tile>) {
         for direction in Direction::iter() {
             let Some(_) = board.get_from_pair(
-                perimeter_tile.pair.add(2_i32.mul(Pair::from(direction))),
+                perimeter_tile
+                    .pair
+                    .add(CELL_STEP.mul(Pair::from(direction))),
             ) else {
                 let Some(cell) = board.get_mut_from_pair(
                     perimeter_tile.pair.add(Pair::from(direction)),
@@ -246,9 +249,9 @@ impl Maze {
     ) -> HashSet<Direction> {
         Direction::iter()
             .filter(|direction| {
-                let Some(visit_status_of_new_pair) = visited
-                    .get_from_pair(pair.add(2_i32.mul(Pair::from(*direction))))
-                else {
+                let Some(visit_status_of_new_pair) = visited.get_from_pair(
+                    pair.add(CELL_STEP.mul(Pair::from(*direction))),
+                ) else {
                     return false;
                 };
                 *visit_status_of_new_pair == VisitStatus::Unvisited
@@ -265,7 +268,10 @@ mod test_maze {
     use strum::IntoEnumIterator;
 
     use crate::{
-        board::Board, direction::Direction, maze::Maze, pair::Pair,
+        board::{Board, CELL_STEP},
+        direction::Direction,
+        maze::Maze,
+        pair::Pair,
         visit_status::VisitStatus,
     };
 
@@ -276,18 +282,18 @@ mod test_maze {
         let none_visited = Direction::iter().collect::<HashSet<Direction>>();
         assert_eq!(Maze::get_unvisited_directions(pair, &board), none_visited);
 
-        if let Some(cell) = board
-            .get_mut_from_pair(pair + 2_i32.mul(Pair::from(Direction::Left)))
-        {
+        if let Some(cell) = board.get_mut_from_pair(
+            pair + CELL_STEP.mul(Pair::from(Direction::Left)),
+        ) {
             *cell = VisitStatus::Visited;
         }
         let mut left_visited = none_visited;
         let _: bool = left_visited.remove(&Direction::Left);
         assert_eq!(Maze::get_unvisited_directions(pair, &board), left_visited);
 
-        if let Some(cell) = board
-            .get_mut_from_pair(pair + 2_i32.mul(Pair::from(Direction::Right)))
-        {
+        if let Some(cell) = board.get_mut_from_pair(
+            pair + CELL_STEP.mul(Pair::from(Direction::Right)),
+        ) {
             *cell = VisitStatus::Visited;
         }
         let mut left_and_right_visited = left_visited;
