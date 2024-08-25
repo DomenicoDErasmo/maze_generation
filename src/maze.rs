@@ -168,7 +168,9 @@ impl Maze {
 
         match side {
             Direction::Down => {
-                let row = i32::try_from(board.grid.len().sub(2)).ok()?;
+                let row =
+                    i32::try_from(board.grid.len().sub(CELL_STEP as usize))
+                        .ok()?;
                 let col = i32::try_from(Board::<Tile>::cell_position_to_index(
                     thread_rng().gen_range(0..board.cell_width),
                 ))
@@ -202,8 +204,10 @@ impl Maze {
                     thread_rng().gen_range(0..board.cell_width),
                 ))
                 .ok()?;
-                let col =
-                    i32::try_from(board.grid.first()?.len().sub(2)).ok()?;
+                let col = i32::try_from(
+                    board.grid.first()?.len().sub(CELL_STEP as usize),
+                )
+                .ok()?;
                 Some(Perimeter {
                     pair: Pair { row, col },
                 })

@@ -62,7 +62,7 @@ where
     #[inline]
     #[must_use]
     pub fn cell_position_to_index(position: usize) -> usize {
-        position.mul(2).add(1)
+        position.mul(CELL_STEP as usize).add(1)
     }
 }
 
