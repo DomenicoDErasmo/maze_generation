@@ -90,8 +90,6 @@ impl Maze {
         let end = Self::choose_perimeter_pair(&board)?;
         Self::add_maze_entry(end, &mut board);
 
-        println!("{:#?}, {:#?}", start.pair, end.pair);
-
         Some(Self { board })
     }
 
@@ -159,8 +157,6 @@ impl Maze {
             .choose(&mut thread_rng())
             .copied()
             .unwrap_or_default();
-
-        println!("{side:#?}");
 
         match side {
             Direction::Down => {
