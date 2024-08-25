@@ -68,9 +68,7 @@ impl Maze {
         *visited.get_mut_from_pair(start)? = VisitStatus::Visited;
 
         while !visited_stack.empty() {
-            let Some(popped_pair) = visited_stack.top() else {
-                break;
-            };
+            let popped_pair = visited_stack.top()?;
 
             let Some(direction) =
                 choose_random_unvisited_direction(popped_pair, &visited)
@@ -81,19 +79,12 @@ impl Maze {
 
             let new_pair = popped_pair.add(2_i32.mul(Pair::from(direction)));
             visited_stack.push(new_pair);
-
-            if let Some(cell) = visited.get_mut_from_pair(new_pair) {
-                *cell = VisitStatus::Visited;
-            }
+            *visited.get_mut_from_pair(new_pair)? = VisitStatus::Visited;
 
             // the in-between cell should be a wall, which we can remove
             let in_between_pair = popped_pair.add(Pair::from(direction));
-            if let Some(cell) = board.get_mut_from_pair(in_between_pair) {
-                *cell = Tile::Path;
-            }
-            if let Some(cell) = visited.get_mut_from_pair(in_between_pair) {
-                *cell = VisitStatus::Visited;
-            }
+            *board.get_mut_from_pair(in_between_pair)? = Tile::Path;
+            *visited.get_mut_from_pair(in_between_pair)? = VisitStatus::Visited;
         }
 
         let end = choose_perimeter_pair(&board)?;
