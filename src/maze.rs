@@ -8,7 +8,7 @@ use strum::IntoEnumIterator;
 
 use crate::board::Board;
 use crate::direction::Direction;
-use crate::pair::Pair;
+use crate::pair::{Pair, Perimeter};
 use crate::stack::Stack;
 use crate::tile::Tile;
 use crate::visit_status::VisitStatus;
@@ -64,8 +64,8 @@ impl Maze {
 
         let mut visited_stack: Stack<Pair> = Stack::new();
 
-        visited_stack.push(start);
-        *visited.get_mut_from_pair(start)? = VisitStatus::Visited;
+        visited_stack.push(start.pair);
+        *visited.get_mut_from_pair(start.pair)? = VisitStatus::Visited;
 
         while !visited_stack.empty() {
             let popped_pair = visited_stack.top()?;
@@ -89,8 +89,6 @@ impl Maze {
 
         let end = choose_perimeter_pair(&board)?;
         add_maze_entry(end, &mut board);
-
-        println!("{start:#?}, {end:#?}");
 
         Some(Self { board })
     }
@@ -130,14 +128,14 @@ impl Maze {
 /// ### Parameters
 /// * `pair`: The `Pair` adjacent to the perimeter of the board.
 /// * `board`: The board of `Tiles` to update.
-fn add_maze_entry(pair: Pair, board: &mut Board<Tile>) {
+fn add_maze_entry(perimeter_tile: Perimeter, board: &mut Board<Tile>) {
     for direction in Direction::iter() {
-        let Some(_) =
-            board.get_from_pair(pair.add(2_i32.mul(Pair::from(direction))))
-        else {
-            let Some(cell) =
-                board.get_mut_from_pair(pair.add(Pair::from(direction)))
-            else {
+        let Some(_) = board.get_from_pair(
+            perimeter_tile.pair.add(2_i32.mul(Pair::from(direction))),
+        ) else {
+            let Some(cell) = board.get_mut_from_pair(
+                perimeter_tile.pair.add(Pair::from(direction)),
+            ) else {
                 return;
             };
 
@@ -154,7 +152,7 @@ fn add_maze_entry(pair: Pair, board: &mut Board<Tile>) {
 ///
 /// ### Returns
 /// * An optional pair.
-fn choose_perimeter_pair(board: &Board<Tile>) -> Option<Pair> {
+fn choose_perimeter_pair(board: &Board<Tile>) -> Option<Perimeter> {
     let side = Direction::iter()
         .collect::<Vec<Direction>>()
         .choose(&mut thread_rng())
@@ -170,7 +168,9 @@ fn choose_perimeter_pair(board: &Board<Tile>) -> Option<Pair> {
                 thread_rng().gen_range(0..board.cell_width),
             ))
             .ok()?;
-            Some(Pair { row, col })
+            Some(Perimeter {
+                pair: Pair { row, col },
+            })
         }
         Direction::Left => {
             let row = i32::try_from(Board::<Tile>::cell_position_to_index(
@@ -178,7 +178,9 @@ fn choose_perimeter_pair(board: &Board<Tile>) -> Option<Pair> {
             ))
             .ok()?;
             let col = 1;
-            Some(Pair { row, col })
+            Some(Perimeter {
+                pair: Pair { row, col },
+            })
         }
         Direction::Up => {
             let row = 1;
@@ -186,7 +188,9 @@ fn choose_perimeter_pair(board: &Board<Tile>) -> Option<Pair> {
                 thread_rng().gen_range(0..board.cell_width),
             ))
             .ok()?;
-            Some(Pair { row, col })
+            Some(Perimeter {
+                pair: Pair { row, col },
+            })
         }
         Direction::Right => {
             let row = i32::try_from(board.grid.len().sub(2)).ok()?;
@@ -194,7 +198,9 @@ fn choose_perimeter_pair(board: &Board<Tile>) -> Option<Pair> {
                 thread_rng().gen_range(0..board.cell_width),
             ))
             .ok()?;
-            Some(Pair { row, col })
+            Some(Perimeter {
+                pair: Pair { row, col },
+            })
         }
     }
 }

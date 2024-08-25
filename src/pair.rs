@@ -13,6 +13,13 @@ pub struct Pair {
     pub col: i32,
 }
 
+/// Denotes a `Pair` that lies on the perimeter of the maze.
+#[derive(Copy, Clone)]
+pub struct Perimeter {
+    /// The underlying `Pair`.
+    pub pair: Pair,
+}
+
 impl Pair {
     /// Creates a `Pair` from a row and col.
     ///
