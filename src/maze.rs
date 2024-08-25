@@ -56,7 +56,7 @@ impl Maze {
     #[inline]
     #[must_use]
     pub fn from_backtracking(height: usize, width: usize) -> Option<Self> {
-        let mut board = Self::blank_board(height, width)?;
+        let mut board = Board::<Tile>::new(height, width);
 
         let mut visited = Board::<VisitStatus>::new(height, width);
         let start = Self::choose_perimeter_pair(&board)?;
@@ -65,7 +65,8 @@ impl Maze {
         let mut visited_stack: Stack<Pair> = Stack::new();
 
         visited_stack.push(start.pair);
-        *visited.get_mut_from_pair(start.pair)? = VisitStatus::Visited;
+        let _: bool =
+            Self::visit_and_mark_as_path(&mut board, &mut visited, start.pair)?;
 
         while !visited_stack.empty() {
             let popped_pair = visited_stack.top()?;
@@ -74,52 +75,56 @@ impl Maze {
                 Self::choose_random_unvisited_direction(popped_pair, &visited)
             else {
                 visited_stack.pop();
+                let _: bool = Self::visit_and_mark_as_path(
+                    &mut board,
+                    &mut visited,
+                    popped_pair,
+                )?;
                 continue;
             };
 
             let new_pair = popped_pair.add(2_i32.mul(Pair::from(direction)));
             visited_stack.push(new_pair);
-            *visited.get_mut_from_pair(new_pair)? = VisitStatus::Visited;
+            let _: bool = Self::visit_and_mark_as_path(
+                &mut board,
+                &mut visited,
+                new_pair,
+            )?;
 
             // the in-between cell should be a wall, which we can remove
             let in_between_pair = popped_pair.add(Pair::from(direction));
-            *board.get_mut_from_pair(in_between_pair)? = Tile::Path;
-            *visited.get_mut_from_pair(in_between_pair)? = VisitStatus::Visited;
+            let _: bool = Self::visit_and_mark_as_path(
+                &mut board,
+                &mut visited,
+                in_between_pair,
+            )?;
         }
 
         let end = Self::choose_perimeter_pair(&board)?;
+        let _: bool =
+            Self::visit_and_mark_as_path(&mut board, &mut visited, end.pair)?;
         Self::add_maze_entry(end, &mut board);
 
         Some(Self { board })
     }
 
-    /// Generates a blank board.
+    /// Updates the board and its visitation status against some pair.
     ///
-    /// ### Parmaters
-    /// * `height`: The number of maze rows.
-    /// * `width`: The number of maze columns.
+    /// ### Parameters
+    /// * `board`: The board of the maze.
+    /// * `visited`: The visitation status of each tile in the maze.
     ///
     /// ### Returns
-    /// * A blank board or `None` if any out-of-bounds indexing occured.
-    #[inline]
-    #[must_use]
-    fn blank_board(height: usize, width: usize) -> Option<Board<Tile>> {
-        let mut grid = Board::<Tile>::new(height, width);
+    /// * `true` if the update succeeded, otherwise `None` if there was an indexing issue.
+    fn visit_and_mark_as_path(
+        board: &mut Board<Tile>,
+        visited: &mut Board<VisitStatus>,
+        pair: Pair,
+    ) -> Option<bool> {
+        *board.get_mut_from_pair(pair)? = Tile::Path;
+        *visited.get_mut_from_pair(pair)? = VisitStatus::Visited;
 
-        for i in 0..Board::<Tile>::cell_position_to_index(grid.cell_width) {
-            for j in 0..Board::<Tile>::cell_position_to_index(grid.cell_height)
-            {
-                if i % 2 == 1 && j % 2 == 1 {
-                    let row = i32::try_from(i).ok()?;
-                    let col = i32::try_from(j).ok()?;
-                    *grid.get_mut_from_pair(Pair::from_row_and_col(
-                        row, col,
-                    ))? = Tile::Path;
-                }
-            }
-        }
-
-        Some(grid)
+        Some(true)
     }
 
     /// Adds an entry point to the maze.
