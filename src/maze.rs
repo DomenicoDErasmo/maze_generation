@@ -268,7 +268,6 @@ mod test_maze {
         let none_visited = Direction::iter().collect::<HashSet<Direction>>();
         assert_eq!(get_unvisited_directions(pair, &board), none_visited);
 
-        println!("{:#?}", pair + 2_i32.mul(Pair::from(Direction::Left)));
         if let Some(cell) = board
             .get_mut_from_pair(pair + 2_i32.mul(Pair::from(Direction::Left)))
         {
