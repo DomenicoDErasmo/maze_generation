@@ -56,7 +56,7 @@ impl Maze {
     #[inline]
     #[must_use]
     pub fn from_backtracking(height: usize, width: usize) -> Option<Self> {
-        let mut board = Self::blank_board(height, width);
+        let mut board = Self::blank_board(height, width)?;
 
         let mut visited = Board::<VisitStatus>::new(height, width);
         let start = choose_perimeter_pair(&board)?;
@@ -102,21 +102,26 @@ impl Maze {
     /// * `width`: The number of maze columns.
     ///
     /// ### Returns
-    /// * A blank board.
+    /// * A blank board or `None` if any out-of-bounds indexing occured.
     #[inline]
     #[must_use]
-    fn blank_board(height: usize, width: usize) -> Board<Tile> {
+    fn blank_board(height: usize, width: usize) -> Option<Board<Tile>> {
         let mut grid = Board::<Tile>::new(height, width);
 
-        for (i, row) in grid.grid.iter_mut().enumerate() {
-            for (j, cell) in row.iter_mut().enumerate() {
+        for i in 0..Board::<Tile>::cell_position_to_index(grid.cell_width) {
+            for j in 0..Board::<Tile>::cell_position_to_index(grid.cell_height)
+            {
                 if i % 2 == 1 && j % 2 == 1 {
-                    *cell = Tile::Path;
+                    let row = i32::try_from(i).ok()?;
+                    let col = i32::try_from(j).ok()?;
+                    *grid.get_mut_from_pair(Pair::from_row_and_col(
+                        row, col,
+                    ))? = Tile::Path;
                 }
             }
         }
 
-        grid
+        Some(grid)
     }
 }
 

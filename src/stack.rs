@@ -119,7 +119,7 @@ where
     ///
     /// let mut stack = Stack::<i32>::from(1);
     /// assert!(!stack.empty());
-    /// 
+    ///
     /// let _ = stack.pop();
     /// assert!(stack.empty());
     /// ```
