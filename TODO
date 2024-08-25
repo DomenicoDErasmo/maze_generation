@@ -1,1 +1,1 @@
-- [ ] How to create a "cell" abstraction for the 2D vector
+- [ ] More ergonomic type handling between i32 and usize?
