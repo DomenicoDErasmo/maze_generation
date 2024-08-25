@@ -62,6 +62,7 @@ impl Maze {
         let start = Self::choose_perimeter_pair(&board)?;
         Self::add_maze_entry(start, &mut board);
 
+        println!("{:#?}", start.pair);
         let mut visited_stack: Stack<Pair> = Stack::new();
 
         visited_stack.push(start.pair);
@@ -105,6 +106,8 @@ impl Maze {
         let _: bool =
             Self::visit_and_mark_as_path(&mut board, &mut visited, end.pair)?;
         Self::add_maze_entry(end, &mut board);
+
+        println!("{:#?}", end.pair);
 
         Some(Self { board })
     }
@@ -166,11 +169,18 @@ impl Maze {
             .copied()
             .unwrap_or_default();
 
+        println!("{side:#?}");
+        println!(
+            "height: {:#?}, width: {:#?}",
+            board.cell_height, board.cell_width
+        );
+
         match side {
             Direction::Down => {
-                let row =
-                    i32::try_from(board.grid.len().sub(CELL_STEP as usize))
-                        .ok()?;
+                let row = i32::try_from(Board::<Tile>::cell_position_to_index(
+                    board.cell_height.sub(1),
+                ))
+                .ok()?;
                 let col = i32::try_from(Board::<Tile>::cell_position_to_index(
                     thread_rng().gen_range(0..board.cell_width),
                 ))
@@ -181,16 +191,20 @@ impl Maze {
             }
             Direction::Left => {
                 let row = i32::try_from(Board::<Tile>::cell_position_to_index(
-                    thread_rng().gen_range(0..board.cell_width),
+                    thread_rng().gen_range(0..board.cell_height),
                 ))
                 .ok()?;
-                let col = 1;
+                let col =
+                    i32::try_from(Board::<Tile>::cell_position_to_index(0))
+                        .ok()?;
                 Some(Perimeter {
                     pair: Pair { row, col },
                 })
             }
             Direction::Up => {
-                let row = 1;
+                let row =
+                    i32::try_from(Board::<Tile>::cell_position_to_index(0))
+                        .ok()?;
                 let col = i32::try_from(Board::<Tile>::cell_position_to_index(
                     thread_rng().gen_range(0..board.cell_width),
                 ))
@@ -201,12 +215,12 @@ impl Maze {
             }
             Direction::Right => {
                 let row = i32::try_from(Board::<Tile>::cell_position_to_index(
-                    thread_rng().gen_range(0..board.cell_width),
+                    thread_rng().gen_range(0..board.cell_height),
                 ))
                 .ok()?;
-                let col = i32::try_from(
-                    board.grid.first()?.len().sub(CELL_STEP as usize),
-                )
+                let col = i32::try_from(Board::<Tile>::cell_position_to_index(
+                    board.cell_width.sub(1),
+                ))
                 .ok()?;
                 Some(Perimeter {
                     pair: Pair { row, col },

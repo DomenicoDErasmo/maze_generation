@@ -37,8 +37,8 @@ where
     pub fn new(height: usize, width: usize) -> Self {
         Self {
             grid: vec![
-                vec![T::default(); Self::cell_position_to_index(height)];
-                Self::cell_position_to_index(width)
+                vec![T::default(); Self::cell_position_to_index(width)];
+                Self::cell_position_to_index(height)
             ],
             cell_width: width,
             cell_height: height,
