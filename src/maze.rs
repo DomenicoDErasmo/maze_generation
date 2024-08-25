@@ -135,20 +135,23 @@ impl Maze {
     /// * `board`: The board of `Tiles` to update.
     fn add_maze_entry(perimeter_tile: Perimeter, board: &mut Board<Tile>) {
         for direction in Direction::iter() {
-            let Some(_) = board.get_from_pair(
+            let possible_maze_edge = board.get_from_pair(
                 perimeter_tile
                     .pair
                     .add(CELL_STEP.mul(Pair::from(direction))),
-            ) else {
-                let Some(cell) = board.get_mut_from_pair(
-                    perimeter_tile.pair.add(Pair::from(direction)),
-                ) else {
-                    return;
-                };
+            );
+            if possible_maze_edge.is_some() {
+                continue;
+            }
 
-                *cell = Tile::Entry;
+            let Some(cell) = board.get_mut_from_pair(
+                perimeter_tile.pair.add(Pair::from(direction)),
+            ) else {
                 return;
             };
+
+            *cell = Tile::Entry;
+            return;
         }
     }
 
