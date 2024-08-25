@@ -23,9 +23,16 @@ impl Pair {
 }
 
 impl From<Direction> for Pair {
+    /// Converts a direction into a `Pair`.
+    /// 
+    /// ### Parameters
+    /// * `direction`: The direction to convert.
+    /// 
+    /// ### Returns
+    /// * The `PairVec`.
     #[inline]
-    fn from(value: Direction) -> Self {
-        match value {
+    fn from(direction: Direction) -> Self {
+        match direction {
             Direction::Down => Self::from_row_and_col(-1, 0),
             Direction::Left => Self::from_row_and_col(0, -1),
             Direction::Up => Self::from_row_and_col(1, 0),

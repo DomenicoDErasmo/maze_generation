@@ -16,14 +16,22 @@ impl<T> Board<T>
 where
     T: Clone + Default + Sized,
 {
+    /// Creates a `Board` from some numbers of horizontal and vertical "cells".
+    ///
+    /// ### Parameters
+    /// * `rows`: The number of row "cells" to instantiate board.
+    /// * `cols`: The number of column "cells" to instantiate the board.
+    ///
+    /// ### Returns
+    /// A fully empty `Board`.  
     #[inline]
     #[must_use]
-    pub fn new(height: usize, width: usize) -> Self {
+    pub fn new(rows: usize, width: usize) -> Self {
         let walkable_and_walls = |val: usize| val.mul(2).add(1);
         Self {
             grid: vec![
                 vec![T::default(); walkable_and_walls(width)];
-                walkable_and_walls(height)
+                walkable_and_walls(rows)
             ],
         }
     }
@@ -62,6 +70,13 @@ impl<T> Board<T>
 where
     T: Sized,
 {
+    /// Gets an immutable reference to a board based on some pair.
+    ///
+    /// ### Parameters
+    /// * `pair`: The `Pair` object used to access the board.
+    ///
+    /// ### Returns
+    /// * An optional immutable reference to a cell in the board.
     #[inline]
     #[must_use]
     pub fn get_from_pair(&self, pair: Pair) -> Option<&T> {
@@ -77,6 +92,13 @@ where
         row.get(col_index)
     }
 
+    /// Gets a mutable reference to a board based on some pair.
+    ///
+    /// ### Parameters
+    /// * `pair`: The `Pair` object used to access the board.
+    ///
+    /// ### Returns
+    /// * An optional mutable reference to a cell in the board.
     #[inline]
     #[must_use]
     pub fn get_mut_from_pair(&mut self, pair: Pair) -> Option<&mut T> {

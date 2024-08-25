@@ -1,5 +1,2 @@
-- [ ] Maze struct in charge of
-    - [ ] Generating full length/width from num rows/cols
-    - [ ] How to choose the next cell
-    - [ ] How to get a perimeter value
-- [ ] Write lots of tests
+- [ ] How to create a "cell" abstraction for the 2D vector
+- [ ] Add documentation and tests
