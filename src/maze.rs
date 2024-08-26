@@ -134,25 +134,24 @@ impl Maze {
     /// * `pair`: The `Pair` adjacent to the perimeter of the board.
     /// * `board`: The board of `Tiles` to update.
     fn add_maze_entry(perimeter_tile: Perimeter, board: &mut Board<Tile>) {
-        for direction in Direction::iter() {
-            let possible_maze_edge = board.get_from_pair(
+        let Some(direction) = Direction::iter().find(|direction| {
+            let possible_perimeter_tile = board.get_from_pair(
                 perimeter_tile
                     .pair
-                    .add(CELL_STEP.mul(Pair::from(direction))),
+                    .add(CELL_STEP.mul(Pair::from(*direction))),
             );
-            if possible_maze_edge.is_some() {
-                continue;
-            }
-
-            let Some(cell) = board.get_mut_from_pair(
-                perimeter_tile.pair.add(Pair::from(direction)),
-            ) else {
-                return;
-            };
-
-            *cell = Tile::Entry;
+            possible_perimeter_tile.is_none()
+        }) else {
             return;
-        }
+        };
+
+        let Some(cell) = board
+            .get_mut_from_pair(perimeter_tile.pair.add(Pair::from(direction)))
+        else {
+            return;
+        };
+
+        *cell = Tile::Entry;
     }
 
     /// Chooses a `Pair` from the perimeter of the maze.
