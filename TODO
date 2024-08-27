@@ -1,1 +1,5 @@
-- [ ] Implement another algorithm
+- [ ] Implement Kruskal's algorithm
+    - [ ] Store disjoint sets of cells
+    - [ ] For each edge (how to order?), if the edge joins two disjoint sets
+      - [ ] Fill in a cell between the two sets at the edge 
+      - [ ] Union the disjoint sets
