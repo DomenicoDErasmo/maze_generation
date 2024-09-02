@@ -5,7 +5,7 @@ use core::ops::{Add, Mul, Sub};
 use crate::direction::Direction;
 
 /// Denotes a row-and-column pair to access a 2-D vector.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct Pair {
     /// The row to access from.
     pub row: i32,

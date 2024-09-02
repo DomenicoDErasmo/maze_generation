@@ -1,3 +1,4 @@
+- [ ] Edge abstraction for constant CELL_STEP.mul calls
 - [ ] Implement Kruskal's algorithm
     - [ ] Store disjoint sets of cells
     - [ ] For each edge (how to order?), if the edge joins two disjoint sets

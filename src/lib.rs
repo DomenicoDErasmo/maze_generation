@@ -2,6 +2,7 @@
 
 pub mod board;
 pub mod direction;
+pub mod edge;
 pub mod maze;
 pub mod pair;
 pub mod stack;

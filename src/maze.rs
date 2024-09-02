@@ -8,6 +8,7 @@ use strum::IntoEnumIterator;
 
 use crate::board::{Board, CELL_STEP};
 use crate::direction::Direction;
+use crate::edge::Edge;
 use crate::pair::{Pair, Perimeter};
 use crate::stack::Stack;
 use crate::tile::Tile;
@@ -45,6 +46,65 @@ impl Debug for Maze {
 }
 
 impl Maze {
+    /// Uses Kruskal's algorithm to randomly generate a maze.
+    ///
+    /// ### Parameters
+    /// * `height`: The number of maze rows
+    /// * `width`: The number of maze columns.
+    ///
+    /// ### Returns
+    /// * An optional fully generated maze.
+    #[inline]
+    #[must_use]
+    pub fn from_kruskals(height: usize, width: usize) -> Option<Self> {
+        let mut board = Board::<Tile>::new(height, width);
+
+        Some(Self { board })
+    }
+
+    /// Initializes the edges in a `Maze`.
+    ///
+    /// ### Parameters
+    /// * `board`: The `Board` of tiles in the maze, consisting of paths and walls.
+    ///
+    /// ### Returns
+    /// * The complete set of edges in the maze.
+    fn init_edges(board: &Board<Tile>) -> HashSet<Edge> {
+        let mut result = HashSet::<Edge>::new();
+
+        // loop over all cells and add their possible edges to the cell
+        // TODO: how to handle order-sensitivity? Current Edge implementation is an ordered tuple
+        // I can't make this a Hash because you can't store a HashSet of HashSets
+        // Maybe enforce the Edge API to be a sorted Pair tuple?
+
+        result
+    }
+
+    /// Gets the traversible edges for a `Pair`.
+    ///
+    /// ### Parameters
+    /// * `pair`: The `Pair` to check traversible `Edges` for.
+    /// * `board`: Some board of values.
+    ///
+    /// ### Returns
+    /// * A `HashSet` of `Edges`.
+    fn get_valid_edges_for_pair<T>(
+        pair: Pair,
+        board: &Board<T>,
+    ) -> HashSet<Edge>
+    where
+        T: Sized,
+    {
+        Self::get_possible_directions::<T>(pair, board)
+            .into_iter()
+            .map(|direction| {
+                let pairs =
+                    (pair, pair.add(CELL_STEP.mul(Pair::from(direction))));
+                Edge { pairs }
+            })
+            .collect::<HashSet<Edge>>()
+    }
+
     /// Uses a backtracking algorithm to randomly generate a maze.
     ///
     /// ### Parmaters
@@ -230,6 +290,32 @@ impl Maze {
             .copied()
     }
 
+    /// Get all valid directions for the current cell.
+    ///
+    /// ### Parameters
+    /// * `pair`: The `Pair` to check valid directions for.
+    /// * `board`: The `Board` to check the `Pair` against.
+    ///
+    /// ### Returns
+    /// * A `HashSet` of `Directions`.
+    fn get_possible_directions<T>(
+        pair: Pair,
+        board: &Board<T>,
+    ) -> HashSet<Direction>
+    where
+        T: Sized,
+    {
+        Direction::iter()
+            .filter(|direction| {
+                board
+                    .get_from_pair(
+                        pair.add(CELL_STEP.mul(Pair::from(*direction))),
+                    )
+                    .is_some()
+            })
+            .collect::<HashSet<Direction>>()
+    }
+
     /// Gets unvisited directions.
     ///
     /// ### Parameters
@@ -244,7 +330,8 @@ impl Maze {
         pair: Pair,
         visited: &Board<VisitStatus>,
     ) -> HashSet<Direction> {
-        Direction::iter()
+        Self::get_possible_directions::<VisitStatus>(pair, visited)
+            .into_iter()
             .filter(|direction| {
                 let Some(visit_status_of_new_pair) = visited.get_from_pair(
                     pair.add(CELL_STEP.mul(Pair::from(*direction))),
